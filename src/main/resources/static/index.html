@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>MyOffice Integration Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/jquery.form.min.js"></script>
+    <script src="lib/jsrender.min.js"></script>
+    <script src="lib/jsonpath-0.8.0.js"></script>
+    <script src="main.js"></script>
+
+    <script id="messageTpl" type="text/x-jsrender">
+        <div class='streamMessage'>{{:message}}</div>
+    </script>
+
+    <script id="errTpl" type="text/x-jsrender">
+        <div class='streamError'>Error occured: '{{:err}}'</div>
+    </script>
+
+    <script id="uploadTpl" type="text/x-jsrender">
+        <div class='streamMessage'>Uploaded file <a target='_blank' href='{{:link}}'>{{:link}}</a>  </div>
+    </script>
+
+    <script id="wsTpl" type="text/x-jsrender">
+        <div class='streamMessage'>WS: <span class='wsData'>{{:message}}</span></div>
+    </script>
+
+    <script id="exportTpl" type="text/x-jsrender">
+        <form class="exportForm" action="{{:apiUrl}}/api/v1/files/{{:objectId}}/syncExport?X-co-auth-token={{:token}}" method="POST">
+            <input type="hidden" name="mediaType" value="application/pdf" />
+            <input class="exportButton" type="submit" value="Export to PDF" />
+        </form>
+    </script>
+
+</head>
+<body>
+    <div id="overlay" style="display:none">
+        <input id="closeFrameButton" value="Close" type="submit" />
+        <iframe src="about:blank"></iframe>
+    </div>
+    
+    <h1>MyOffice Integration Demo</h1>
+    
+    <div id="loginContainer" style="display: none">
+        <form id="loginForm" >
+            <label for="login">Login</label>
+            <input type="text" name="login" id="login" />
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" />
+            <input type="submit" value="Login" id="loginButton">
+        </form>
+    </div>
+    <div id="uploadContainer" style="display: none">
+        <form id="uploadForm">
+            <label for="file">File</label>
+            <input type="file" name="file" id="file" />
+            <label for="convert">Convert</label>
+            <input type="checkbox" name="convert" value="true" id="convert" />
+            <input type="submit" value="Upload" id="uploadButton" />
+            
+        </form>
+    </div>
+    <br />
+    <div>
+        <input type="submit" value="Clear Events" id="clearButton">
+    </div>
+    <br />
+    <div id="eventStream">
+
+    </div>
+</body>
+</html>

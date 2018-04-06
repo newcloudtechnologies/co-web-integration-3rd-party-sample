@@ -1,0 +1,3041 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "MyOffice - a client-server system that provides document storage and collaborative editing capabilities",
+    "version" : "01.2018",
+    "title" : "MyOffice Application",
+    "termsOfService" : "https://myoffice.ru/tos/",
+    "contact" : {
+      "name" : "New Cloud Tech team",
+      "url" : "myoffice.ru",
+      "email" : "srv@ncloudtech.ru"
+    },
+    "license" : {
+      "name" : "Copyright (c) New Cloud Technologies, Ltd., 2013-2018 You can not use the contents of the file in any way without New Cloud Technologies Ltd. written permission. To obtain such a permit, you should contact New Cloud Technologies, Ltd. at http://ncloudtech.com/contact.html",
+      "url" : "https://myoffice.ru/tos/"
+    }
+  },
+  "host" : "localhost:8080",
+  "basePath" : "/",
+  "tags" : [ {
+    "name" : "files",
+    "description" : "Files API"
+  }, {
+    "name" : "gcm",
+    "description" : "GCM API"
+  }, {
+    "name" : "infos",
+    "description" : "Infos API"
+  }, {
+    "name" : "issues",
+    "description" : "Issues API"
+  }, {
+    "name" : "queues",
+    "description" : "Queues API"
+  } ],
+  "paths" : {
+    "/api/v1" : {
+      "get" : {
+        "tags" : [ "infos" ],
+        "summary" : "getLinks",
+        "description" : "Get info links.",
+        "operationId" : "getLinksUsingGET",
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/ApiResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "listFiles",
+        "description" : "Returns the list of files. Results are filtered according to the data passed in the 'q' request parameter.",
+        "operationId" : "listFilesUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.filelist+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.filelist.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "Urlencoded query json object",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/FileResource"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/makeDir" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "makeDir",
+        "operationId" : "makeDirUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "request",
+          "description" : "request",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/MakeDirRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/recents" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "listRecents",
+        "description" : "Get recent files.",
+        "operationId" : "listRecentsUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.filelist+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "applicationName",
+          "in" : "query",
+          "description" : "Application name is used to filter recent files by their media type. When not specified, all files will be returned.",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "DOCUMENT", "SPREADSHEET", "PRESENTATION" ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/FileResource"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/upload" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "uploadNewFile",
+        "operationId" : "uploadNewFileUsingPOST",
+        "consumes" : [ "multipart/form-data" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.file+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.file.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "source",
+          "in" : "formData",
+          "description" : "source",
+          "required" : true,
+          "type" : "file"
+        }, {
+          "name" : "convert",
+          "in" : "query",
+          "description" : "Convert the file to the internal format",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "conflictStrategy",
+          "in" : "query",
+          "description" : "conflictStrategy",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        }, {
+          "name" : "metadata",
+          "in" : "query",
+          "description" : "File metadata. parentId is required, filename and mediaType are optional",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "synchronous",
+          "in" : "query",
+          "description" : "Do conversion synchronously",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/zip" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "zipFiles",
+        "operationId" : "zipFilesUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "id",
+          "in" : "query",
+          "description" : "id",
+          "required" : true,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "filename",
+          "in" : "query",
+          "description" : "Result file name. If not specified, default name will be set",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "createZipRequest",
+        "description" : "Put files' ids to temporary store for future zip download.",
+        "operationId" : "createZipRequestUsingPOST",
+        "consumes" : [ "application/json;charset=UTF-8", "application/x-www-form-urlencoded" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "id",
+          "in" : "formData",
+          "description" : "id",
+          "required" : true,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/ZipRequestResult"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/zip/{zipRequestId}" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "zipFilesFromRequestId",
+        "description" : "Zip files specified in previous zip request.",
+        "operationId" : "zipFilesFromRequestIdUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "zipRequestId",
+          "in" : "path",
+          "description" : "zipRequestId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "filename",
+          "in" : "query",
+          "description" : "Result file name. If not specified, default name will be set",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "getFile",
+        "operationId" : "getFileUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.file+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.file.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "files" ],
+        "summary" : "updateFile",
+        "description" : "Update file metadata. Currently used only for rename. Operation will be executed only if new filename is specified.",
+        "operationId" : "updateFileUsingPUT",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.file+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.file.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "file",
+          "description" : "file",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/File"
+          }
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "conflictStrategy",
+          "in" : "query",
+          "description" : "conflictStrategy",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "files" ],
+        "summary" : "deleteFile",
+        "description" : "Remove file or folder. If fileId equals trash folder id, purge trash.",
+        "operationId" : "deleteFileUsingDELETE",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/children" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "getFileChildren",
+        "operationId" : "getFileChildrenUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.childlist+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.childlist.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "q",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/FileResource"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/content" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "downloadFile",
+        "operationId" : "downloadFileUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "forceSave",
+          "in" : "query",
+          "description" : "Save file before download if it's opened",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "download",
+          "in" : "query",
+          "description" : "Do not put file to recents",
+          "required" : false,
+          "type" : "boolean"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      },
+      "head" : {
+        "tags" : [ "files" ],
+        "summary" : "downloadFileHead",
+        "description" : "Retrieve file headers.",
+        "operationId" : "downloadFileHeadUsingHEAD",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/copy/{folderId}" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "copyFile",
+        "description" : "Copy file or create template from it.",
+        "operationId" : "copyFileUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.file+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.file.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "folderId",
+          "in" : "path",
+          "description" : "folderId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "saveAsTemplate",
+          "in" : "query",
+          "description" : "saveAsTemplate",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "filename",
+          "in" : "query",
+          "description" : "filename",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "conflictStrategy",
+          "in" : "query",
+          "description" : "conflictStrategy",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/email" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "sendFileEmail",
+        "description" : "Send file as a link or attachment.",
+        "operationId" : "sendFileEmailUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "recipient",
+          "in" : "query",
+          "description" : "recipient",
+          "required" : true,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "userMessage",
+          "in" : "query",
+          "description" : "userMessage",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "attachFile",
+          "in" : "query",
+          "description" : "attachFile",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "format",
+          "in" : "query",
+          "description" : "format",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "openxml", "xodf", "pdf" ]
+        }, {
+          "name" : "mediaType",
+          "in" : "query",
+          "description" : "mediaType",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "application/vnd.oasis.opendocument.text", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.collabio.xodocuments.document", "application/vnd.oasis.opendocument.spreadsheet", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.collabio.xodocuments.spreadsheet", "application/vnd.collabio.xodocuments.document-template", "application/vnd.collabio.xodocuments.spreadsheet-template", "application/pdf" ]
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/export" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "exportFile",
+        "description" : "Export file or prepare file for print.",
+        "operationId" : "exportFileUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "format",
+          "in" : "query",
+          "description" : "format",
+          "required" : false,
+          "type" : "string",
+          "default" : "openxml",
+          "enum" : [ "openxml", "xodf", "pdf" ]
+        }, {
+          "name" : "mediaType",
+          "in" : "query",
+          "description" : "mediaType",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "application/vnd.oasis.opendocument.text", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.collabio.xodocuments.document", "application/vnd.oasis.opendocument.spreadsheet", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.collabio.xodocuments.spreadsheet", "application/vnd.collabio.xodocuments.document-template", "application/vnd.collabio.xodocuments.spreadsheet-template", "application/pdf" ]
+        }, {
+          "name" : "folderId",
+          "in" : "query",
+          "description" : "If specified, converted file will be put to it",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "conflictStrategy",
+          "in" : "query",
+          "description" : "conflictStrategy",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        }, {
+          "name" : "filename",
+          "in" : "query",
+          "description" : "filename",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "printSettings",
+          "description" : "printSettings",
+          "required" : false,
+          "schema" : {
+            "type" : "object"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "exportFile",
+        "description" : "Export file or prepare file for print.",
+        "operationId" : "exportFileUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "format",
+          "in" : "query",
+          "description" : "format",
+          "required" : false,
+          "type" : "string",
+          "default" : "openxml",
+          "enum" : [ "openxml", "xodf", "pdf" ]
+        }, {
+          "name" : "mediaType",
+          "in" : "query",
+          "description" : "mediaType",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "application/vnd.oasis.opendocument.text", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.collabio.xodocuments.document", "application/vnd.oasis.opendocument.spreadsheet", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.collabio.xodocuments.spreadsheet", "application/vnd.collabio.xodocuments.document-template", "application/vnd.collabio.xodocuments.spreadsheet-template", "application/pdf" ]
+        }, {
+          "name" : "folderId",
+          "in" : "query",
+          "description" : "If specified, converted file will be put to it",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "conflictStrategy",
+          "in" : "query",
+          "description" : "conflictStrategy",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        }, {
+          "name" : "filename",
+          "in" : "query",
+          "description" : "filename",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "printSettings",
+          "description" : "printSettings",
+          "required" : false,
+          "schema" : {
+            "type" : "object"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/generatePrerender" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "regeneratePrerender",
+        "description" : "Force generate prerender file",
+        "operationId" : "regeneratePrerenderUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "202" : {
+            "description" : "Accepted"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/generatePreview" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "regeneratePreview",
+        "description" : "Force generate preview file",
+        "operationId" : "regeneratePreviewUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "202" : {
+            "description" : "Accepted"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/import" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "importFile",
+        "description" : "Convert file to CO format.",
+        "operationId" : "importFileUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "conflictStrategy",
+          "in" : "query",
+          "description" : "conflictStrategy",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/isOpened" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "isFileOpened",
+        "description" : "Returns true if file is completely opened on DU with success.",
+        "operationId" : "isFileOpenedUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "type" : "boolean"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/move/{folderId}" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "moveFile",
+        "operationId" : "moveFileUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.file+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.file.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "folderId",
+          "in" : "path",
+          "description" : "folderId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "conflictStrategy",
+          "in" : "query",
+          "description" : "conflictStrategy",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/owner" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "getFileOwner",
+        "description" : "Available only for a file in the user's tenant.",
+        "operationId" : "getFileOwnerUsingGET",
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileOwner"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/parents" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "getFileParents",
+        "operationId" : "getFileParentsUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.parentlist.hal+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.parentlist+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/ParentResource"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/permissions" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "addFilePermission",
+        "operationId" : "addFilePermissionUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.permission.hal+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.permission+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "sendEmail",
+          "in" : "query",
+          "description" : "Send notification email to shared user",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "userMessage",
+          "in" : "query",
+          "description" : "Add user message to notification email",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "permission",
+          "description" : "permission",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Permission"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/PermissionResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/permissions/multiple" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "addFilePermissions",
+        "description" : "Add multiple permissions.",
+        "operationId" : "addFilePermissionsUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.permissionlist.hal+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.permissionlist+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "request",
+          "description" : "request",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/AddFilePermissionsRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/Resources«PermissionResource»"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/permissions/{permId}" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "getFilePermission",
+        "operationId" : "getFilePermissionUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.permission.hal+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.permission+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "permId",
+          "in" : "path",
+          "description" : "Permission id (user's login or group id)",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/PermissionResource"
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "files" ],
+        "summary" : "modifyFilePermission",
+        "operationId" : "modifyFilePermissionUsingPUT",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.permission.hal+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.permission+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "permId",
+          "in" : "path",
+          "description" : "Permission id (user's login or group id)",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "permission",
+          "description" : "permission",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Permission"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/PermissionResource"
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "files" ],
+        "summary" : "deleteFilePermission",
+        "operationId" : "deleteFilePermissionUsingDELETE",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "permId",
+          "in" : "path",
+          "description" : "Permission id (user's login or group id)",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/prerender" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "prerenderFile",
+        "description" : "Get file's prerender or regenerate if it does not exist.",
+        "operationId" : "prerenderFileUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/preview" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "previewFile",
+        "operationId" : "previewFileUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      },
+      "head" : {
+        "tags" : [ "files" ],
+        "summary" : "previewFileMediaType",
+        "description" : "Get file preview media type or regenerate hidden files if required.",
+        "operationId" : "previewFileMediaTypeUsingHEAD",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/properties" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "getFileProperties",
+        "operationId" : "getFilePropertiesUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.propertylist+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.propertylist.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/PropertyResource"
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "setFileProperties",
+        "operationId" : "setFilePropertiesUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.propertylist+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.propertylist.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "propsList",
+          "description" : "List of new properties",
+          "required" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/Property"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/PropertyResource"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/requestAccess" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "requestAccess",
+        "description" : "Send request for access to file's owner using email and GCM.",
+        "operationId" : "requestAccessUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/revisions" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "getFileRevisions",
+        "operationId" : "getFileRevisionsUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.revisionlist+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.revisionlist.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/RevisionResource"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/revisions/create" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "createNewRevision",
+        "operationId" : "createNewRevisionUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "title",
+          "in" : "query",
+          "description" : "title",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "202" : {
+            "description" : "Accepted"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/revisions/{revId}" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "getFileRevision",
+        "operationId" : "getFileRevisionUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.revision+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.revision.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "revId",
+          "in" : "path",
+          "description" : "revId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/RevisionResource"
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "files" ],
+        "summary" : "updateRevision",
+        "description" : "Update revision fields (Now only for title).",
+        "operationId" : "updateRevisionUsingPUT",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "revId",
+          "in" : "path",
+          "description" : "revId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "revision",
+          "description" : "revision",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/Revision"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "files" ],
+        "summary" : "deleteRevision",
+        "operationId" : "deleteRevisionUsingDELETE",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "revId",
+          "in" : "path",
+          "description" : "revId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/revisions/{revId}/content" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "getFileRevisionContent",
+        "operationId" : "getFileRevisionContentUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "revId",
+          "in" : "path",
+          "description" : "revId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/revisions/{revId}/newFile" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "createNewFileFromRevision",
+        "description" : "Target file name will be taken from original file if no filename in param.",
+        "operationId" : "createNewFileFromRevisionUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "revId",
+          "in" : "path",
+          "description" : "revId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "folderId",
+          "in" : "query",
+          "description" : "Folder id where new file should be created",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "filename",
+          "in" : "query",
+          "description" : "filename",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "conflictStrategy",
+          "in" : "query",
+          "description" : "conflictStrategy",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/revisions/{revId}/restore" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "restoreRevision",
+        "description" : "Copy revision into a new one.",
+        "operationId" : "restoreRevisionUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "revId",
+          "in" : "path",
+          "description" : "revId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "title",
+          "in" : "query",
+          "description" : "Title of revision. Title will be set for revision if present",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/RevisionResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/syncExport" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "exportFile",
+        "description" : "Synchronous file export.",
+        "operationId" : "exportFileUsingPOST_1",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "format",
+          "in" : "query",
+          "description" : "format",
+          "required" : false,
+          "type" : "string",
+          "default" : "openxml",
+          "enum" : [ "openxml", "xodf", "pdf" ]
+        }, {
+          "name" : "mediaType",
+          "in" : "query",
+          "description" : "mediaType",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "application/vnd.oasis.opendocument.text", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.collabio.xodocuments.document", "application/vnd.oasis.opendocument.spreadsheet", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.collabio.xodocuments.spreadsheet", "application/vnd.collabio.xodocuments.document-template", "application/vnd.collabio.xodocuments.spreadsheet-template", "application/pdf" ]
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/thumbnail" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "thumbnailFile",
+        "description" : "Get file's thumbnail or regenerate if it does not exist.",
+        "operationId" : "thumbnailFileUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/trash" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "trashFile",
+        "description" : "Remove file or folder to trash. If fileId equals trash folder id, purge trash.",
+        "operationId" : "trashFileUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.file+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.file.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/untrash" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "untrashFile",
+        "operationId" : "untrashFileUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.file+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.file.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "conflictStrategy",
+          "in" : "query",
+          "description" : "conflictStrategy",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/upload" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "uploadNewFileRevision",
+        "operationId" : "uploadNewFileRevisionUsingPOST",
+        "consumes" : [ "multipart/form-data" ],
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.file+json;v=1;charset=UTF-8", "application/vnd.ncloudtech.cloudoffice.file.hal+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "source",
+          "in" : "formData",
+          "description" : "source",
+          "required" : true,
+          "type" : "file"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/FileResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/view" : {
+      "get" : {
+        "tags" : [ "files" ],
+        "summary" : "viewFile",
+        "operationId" : "viewFileUsingGET",
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "path",
+          "description" : "fileId",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/api/v1/gcm/register" : {
+      "post" : {
+        "tags" : [ "gcm" ],
+        "summary" : "register",
+        "description" : "Register for GCM notifications.",
+        "operationId" : "registerUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "deviceToken",
+          "in" : "query",
+          "description" : "Token for device",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/info" : {
+      "get" : {
+        "tags" : [ "infos" ],
+        "summary" : "getInfo",
+        "operationId" : "getInfoUsingGET",
+        "produces" : [ "application/vnd.ncloudtech.cloudoffice.info+json;v=1;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/InfoResource"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/issues" : {
+      "post" : {
+        "tags" : [ "issues" ],
+        "summary" : "postIssue",
+        "description" : "Create new issue.",
+        "operationId" : "postIssueUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fileId",
+          "in" : "query",
+          "description" : "File id to attach to the issue",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "clientParameters",
+          "in" : "query",
+          "description" : "Any parameters you want to store in the issue's description",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "title",
+          "in" : "query",
+          "description" : "Issue title",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        }
+      }
+    },
+    "/api/v1/queues/generate" : {
+      "post" : {
+        "tags" : [ "queues" ],
+        "summary" : "generate",
+        "description" : "Send command to generate additional (hidden) files.",
+        "operationId" : "generateUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "*/*" ],
+        "parameters" : [ {
+          "name" : "X-co-auth-token",
+          "in" : "header",
+          "description" : "Authorization token",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "fsToken",
+          "description" : "Current user's FS token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "fileId",
+          "in" : "query",
+          "description" : "Source file for processing",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "fsLogin",
+          "in" : "query",
+          "description" : "Current user's FS login",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "command",
+          "in" : "query",
+          "description" : "Convert operation",
+          "required" : true,
+          "type" : "string",
+          "enum" : [ "import", "export", "exporttofolder", "preview", "thumbnail", "index", "prerender", "prepareattach", "prepareadonly", "prepareadonlynomedia" ]
+        }, {
+          "name" : "timezoneOffsetMins",
+          "in" : "query",
+          "description" : "Timezone to be used by Console Client",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "AddFilePermissionsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "permissions" : {
+          "type" : "array",
+          "description" : "The actual list of permissions.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "$ref" : "#/definitions/Permission"
+          }
+        },
+        "sendEmail" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "Send email after set permission or not indicator",
+          "allowEmptyValue" : false
+        },
+        "userMessage" : {
+          "type" : "string",
+          "description" : "User message to add in email",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "AddFilePermissionsRequest",
+      "description" : "REST API addFilePermissions request body"
+    },
+    "ApiResource" : {
+      "type" : "object",
+      "properties" : {
+        "links" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "link",
+            "namespace" : "http://www.w3.org/2005/Atom",
+            "attribute" : false,
+            "wrapped" : false
+          },
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        }
+      },
+      "title" : "ApiResource"
+    },
+    "ExportFormat" : {
+      "type" : "object",
+      "properties" : {
+        "source" : {
+          "type" : "string",
+          "description" : "The content type to convert from.",
+          "allowEmptyValue" : false
+        },
+        "targets" : {
+          "type" : "array",
+          "description" : "The possible content types to convert to.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "title" : "ExportFormat"
+    },
+    "Feature" : {
+      "type" : "object",
+      "properties" : {
+        "featureName" : {
+          "type" : "string",
+          "description" : "The name of the feature.",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "Feature"
+    },
+    "File" : {
+      "type" : "object",
+      "properties" : {
+        "checksum" : {
+          "type" : "string",
+          "description" : "An MD5 checksum for the content of this file.",
+          "allowEmptyValue" : false
+        },
+        "createdDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Create time for this file (formatted ISO8601 timestamp).",
+          "allowEmptyValue" : false
+        },
+        "creator" : {
+          "type" : "string",
+          "description" : "The original creator (userId) of this file.",
+          "allowEmptyValue" : false
+        },
+        "currentRevisionObject" : {
+          "description" : "The current revision of file.",
+          "allowEmptyValue" : false,
+          "$ref" : "#/definitions/Revision"
+        },
+        "description" : {
+          "type" : "string",
+          "description" : "A short description of the file.",
+          "allowEmptyValue" : false
+        },
+        "etag" : {
+          "type" : "string",
+          "description" : "ETag (HTTP Entity Tag) of the file.",
+          "allowEmptyValue" : false
+        },
+        "fileSize" : {
+          "type" : "string",
+          "description" : "The size of the file in bytes.",
+          "allowEmptyValue" : false
+        },
+        "filename" : {
+          "type" : "string",
+          "description" : "The original filename of the file that was uploaded, imported and converted to the storage.",
+          "allowEmptyValue" : false
+        },
+        "headRevisionId" : {
+          "type" : "string",
+          "description" : "The ID of the file's head (last) revision.",
+          "allowEmptyValue" : false
+        },
+        "id" : {
+          "type" : "string",
+          "description" : "The ID of the file.",
+          "allowEmptyValue" : false
+        },
+        "index" : {
+          "type" : "string",
+          "description" : "The id of index file.",
+          "allowEmptyValue" : false
+        },
+        "isRoot" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "Whether or not the parent is the root folder.",
+          "allowEmptyValue" : false
+        },
+        "lastModifyingUserId" : {
+          "type" : "string",
+          "description" : "The last userId to modify this file.",
+          "allowEmptyValue" : false
+        },
+        "lastViewedByMeDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Last time this file was viewed by the user (formatted RFC 3339 timestamp).",
+          "allowEmptyValue" : false
+        },
+        "mediaType" : {
+          "type" : "string",
+          "description" : "The media type of the file.",
+          "allowEmptyValue" : false
+        },
+        "modifiedByMeDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Last time this file was modified by the user (formatted RFC 3339 timestamp).",
+          "allowEmptyValue" : false
+        },
+        "modifiedDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Last time this file was modified by anyone (formatted RFC 3339 timestamp).",
+          "allowEmptyValue" : false
+        },
+        "originalFile" : {
+          "type" : "string",
+          "description" : "The original file id for thumbnail.",
+          "allowEmptyValue" : false
+        },
+        "originalMediaType" : {
+          "type" : "string",
+          "description" : "The original media type of the file that was uploaded, imported and converted to the storage.",
+          "allowEmptyValue" : false
+        },
+        "ownerFirstName" : {
+          "type" : "string",
+          "description" : "Owner first name",
+          "allowEmptyValue" : false
+        },
+        "ownerFsId" : {
+          "type" : "string",
+          "description" : "The owner's FS id.",
+          "allowEmptyValue" : false
+        },
+        "ownerId" : {
+          "type" : "string",
+          "description" : "The owner's login of this file.",
+          "allowEmptyValue" : false
+        },
+        "ownerLastName" : {
+          "type" : "string",
+          "description" : "Owner last name",
+          "allowEmptyValue" : false
+        },
+        "parentId" : {
+          "type" : "string",
+          "description" : "The parent folder (parentReferenceId) which contains this file. The root has no parent",
+          "allowEmptyValue" : false
+        },
+        "prerender" : {
+          "type" : "string",
+          "description" : "The id of prerendered file.",
+          "allowEmptyValue" : false
+        },
+        "preview" : {
+          "type" : "string",
+          "description" : "The id of preview file.",
+          "allowEmptyValue" : false
+        },
+        "previewFailureMark" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Flag to show unix time of unsuccessful preview generation.",
+          "allowEmptyValue" : false
+        },
+        "properties" : {
+          "type" : "array",
+          "description" : "The list of file's properties.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "$ref" : "#/definitions/Property"
+          }
+        },
+        "quotaBytesUsed" : {
+          "type" : "string",
+          "description" : "The number of quota bytes used by this file.",
+          "allowEmptyValue" : false
+        },
+        "sharedWithMeDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Time at which this file was shared with the user (formatted RFC 3339 timestamp).",
+          "allowEmptyValue" : false
+        },
+        "thumbnail" : {
+          "type" : "string",
+          "description" : "The id of thumbnail file.",
+          "allowEmptyValue" : false
+        },
+        "thumbnailFailureMark" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Flag to show unix time of unsuccessful thumbnail generation.",
+          "allowEmptyValue" : false
+        },
+        "totalSize" : {
+          "type" : "string",
+          "description" : "Total size of all versions.",
+          "allowEmptyValue" : false
+        },
+        "tree" : {
+          "type" : "string",
+          "description" : "Parents' tree for file. Can be different for shared files",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "File",
+      "description" : "The metadata for a file."
+    },
+    "FileOwner" : {
+      "type" : "object",
+      "properties" : {
+        "email" : {
+          "type" : "string",
+          "description" : "Owner's email",
+          "allowEmptyValue" : false
+        },
+        "filename" : {
+          "type" : "string",
+          "description" : "File's name",
+          "allowEmptyValue" : false
+        },
+        "id" : {
+          "type" : "string",
+          "description" : "Owner's id",
+          "allowEmptyValue" : false
+        },
+        "isInTrash" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "Is file in trash indicator",
+          "allowEmptyValue" : false
+        },
+        "locale" : {
+          "type" : "string",
+          "description" : "Owner's locale",
+          "allowEmptyValue" : false
+        },
+        "login" : {
+          "type" : "string",
+          "description" : "Owner's login",
+          "allowEmptyValue" : false
+        },
+        "mediaType" : {
+          "type" : "string",
+          "description" : "File's media type",
+          "allowEmptyValue" : false
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "Owner's name",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "FileOwner",
+      "description" : "File owner information."
+    },
+    "FileResource" : {
+      "type" : "object",
+      "properties" : {
+        "file" : {
+          "$ref" : "#/definitions/File"
+        },
+        "links" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "link",
+            "namespace" : "http://www.w3.org/2005/Atom",
+            "attribute" : false,
+            "wrapped" : false
+          },
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        }
+      },
+      "title" : "FileResource"
+    },
+    "ImportFormat" : {
+      "type" : "object",
+      "properties" : {
+        "sourceExtensions" : {
+          "type" : "array",
+          "description" : "The imported file's extensions to convert from.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "sourceMediaTypes" : {
+          "type" : "array",
+          "description" : "The imported file's content types to convert from.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "target" : {
+          "type" : "string",
+          "description" : "The content type to convert to.",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "ImportFormat"
+    },
+    "Info" : {
+      "type" : "object",
+      "properties" : {
+        "etag" : {
+          "type" : "string",
+          "description" : "The ETag of the item.",
+          "allowEmptyValue" : false
+        },
+        "exportFormats" : {
+          "type" : "array",
+          "description" : "The allowable export formats.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "$ref" : "#/definitions/ExportFormat"
+          }
+        },
+        "features" : {
+          "type" : "array",
+          "description" : "List of additional features enabled on this account.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "$ref" : "#/definitions/Feature"
+          }
+        },
+        "importFormats" : {
+          "type" : "array",
+          "description" : "The allowable import formats.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "$ref" : "#/definitions/ImportFormat"
+          }
+        },
+        "internalFormats" : {
+          "type" : "array",
+          "description" : "The internal CO formats.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "$ref" : "#/definitions/InternalFormat"
+          }
+        },
+        "maxUploadSizes" : {
+          "type" : "array",
+          "description" : "List of max upload sizes for each file type. The most specific type takes precedence.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "$ref" : "#/definitions/MaxUploadSize"
+          }
+        },
+        "roles" : {
+          "type" : "array",
+          "description" : "The list of available roles.",
+          "allowEmptyValue" : false,
+          "items" : {
+            "type" : "string",
+            "enum" : [ "admin", "denied", "owner", "editor", "viewer" ]
+          }
+        },
+        "roots" : {
+          "type" : "array",
+          "description" : "The list of root folders (typically Shared, Trash and Personal).",
+          "allowEmptyValue" : false,
+          "items" : {
+            "$ref" : "#/definitions/File"
+          }
+        },
+        "versions" : {
+          "description" : "Current build and API versions.",
+          "allowEmptyValue" : false,
+          "$ref" : "#/definitions/Versions"
+        }
+      },
+      "title" : "Info",
+      "description" : "The generic information regarding this user account."
+    },
+    "InfoResource" : {
+      "type" : "object",
+      "properties" : {
+        "info" : {
+          "$ref" : "#/definitions/Info"
+        },
+        "links" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "link",
+            "namespace" : "http://www.w3.org/2005/Atom",
+            "attribute" : false,
+            "wrapped" : false
+          },
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        }
+      },
+      "title" : "InfoResource"
+    },
+    "InternalFormat" : {
+      "type" : "object",
+      "properties" : {
+        "extension" : {
+          "type" : "string",
+          "description" : "The internal format's extension",
+          "allowEmptyValue" : false
+        },
+        "mediaType" : {
+          "type" : "string",
+          "description" : "The internal format's media type",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "InternalFormat"
+    },
+    "Link" : {
+      "type" : "object",
+      "properties" : {
+        "href" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "href",
+            "attribute" : true,
+            "wrapped" : false
+          }
+        },
+        "rel" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "rel",
+            "attribute" : true,
+            "wrapped" : false
+          }
+        },
+        "templated" : {
+          "type" : "boolean"
+        }
+      },
+      "title" : "Link"
+    },
+    "MakeDirRequest" : {
+      "type" : "object",
+      "properties" : {
+        "filename" : {
+          "type" : "string"
+        },
+        "parentId" : {
+          "type" : "string"
+        },
+        "conflictStrategy" : {
+          "type" : "string",
+          "enum" : [ "overwrite", "keep_both", "versioned" ]
+        }
+      },
+      "title" : "MakeDirRequest"
+    },
+    "MaxUploadSize" : {
+      "type" : "object",
+      "properties" : {
+        "size" : {
+          "type" : "string",
+          "description" : "The max upload size for this type.",
+          "allowEmptyValue" : false
+        },
+        "type" : {
+          "type" : "string",
+          "description" : "The file type.",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "MaxUploadSize"
+    },
+    "Parent" : {
+      "type" : "object",
+      "properties" : {
+        "filename" : {
+          "type" : "string",
+          "description" : "Filename",
+          "allowEmptyValue" : false
+        },
+        "id" : {
+          "type" : "string",
+          "description" : "The ID of the parent.",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "Parent",
+      "description" : "The data for object's parent."
+    },
+    "ParentResource" : {
+      "type" : "object",
+      "properties" : {
+        "links" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "link",
+            "namespace" : "http://www.w3.org/2005/Atom",
+            "attribute" : false,
+            "wrapped" : false
+          },
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        },
+        "parent" : {
+          "$ref" : "#/definitions/Parent"
+        }
+      },
+      "title" : "ParentResource"
+    },
+    "Permission" : {
+      "type" : "object",
+      "properties" : {
+        "email" : {
+          "type" : "string",
+          "description" : "The user's email for this permission.",
+          "allowEmptyValue" : false
+        },
+        "etag" : {
+          "type" : "string",
+          "description" : "The ETag of the permission.",
+          "allowEmptyValue" : false
+        },
+        "fsPermId" : {
+          "type" : "string",
+          "description" : "The FS ID of the permission (user id or group id if it's a group permission).",
+          "allowEmptyValue" : false
+        },
+        "groupName" : {
+          "type" : "string",
+          "description" : "Group name (will be empty if it is not a group permission, not required to add permission)",
+          "allowEmptyValue" : false
+        },
+        "id" : {
+          "type" : "string",
+          "description" : "The ID of the permission (user login or group id if it's a group permission).",
+          "allowEmptyValue" : false
+        },
+        "isGroup" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "Is group permission indicator",
+          "allowEmptyValue" : false
+        },
+        "login" : {
+          "type" : "string",
+          "description" : "The user's login for this permission.",
+          "allowEmptyValue" : false
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "The name for this permission.",
+          "allowEmptyValue" : false
+        },
+        "parentShareFilename" : {
+          "type" : "string",
+          "description" : "Parent share filename.",
+          "allowEmptyValue" : false
+        },
+        "parentShareId" : {
+          "type" : "string",
+          "description" : "Parent share id.",
+          "allowEmptyValue" : false
+        },
+        "role" : {
+          "type" : "string",
+          "description" : "The primary role for this user.",
+          "allowEmptyValue" : false,
+          "enum" : [ "admin", "denied", "owner", "editor", "viewer" ]
+        },
+        "shareUserAvatarId" : {
+          "type" : "string",
+          "description" : "Share user avatar id.",
+          "allowEmptyValue" : false
+        },
+        "shareUserFirstName" : {
+          "type" : "string",
+          "description" : "Share user first name.",
+          "allowEmptyValue" : false
+        },
+        "shareUserLastName" : {
+          "type" : "string",
+          "description" : "Share user last name.",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "Permission",
+      "description" : "A permission for a file."
+    },
+    "PermissionResource" : {
+      "type" : "object",
+      "properties" : {
+        "links" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "link",
+            "namespace" : "http://www.w3.org/2005/Atom",
+            "attribute" : false,
+            "wrapped" : false
+          },
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        },
+        "permission" : {
+          "$ref" : "#/definitions/Permission"
+        }
+      },
+      "title" : "PermissionResource"
+    },
+    "Property" : {
+      "type" : "object",
+      "properties" : {
+        "etag" : {
+          "type" : "string",
+          "description" : "ETag of the property.",
+          "allowEmptyValue" : false
+        },
+        "id" : {
+          "type" : "string",
+          "description" : "The ID of the property.",
+          "allowEmptyValue" : false
+        },
+        "key" : {
+          "type" : "string",
+          "description" : "The key of this property.",
+          "allowEmptyValue" : false
+        },
+        "value" : {
+          "type" : "string",
+          "description" : "The value of this property.",
+          "allowEmptyValue" : false
+        },
+        "visibility" : {
+          "type" : "string",
+          "description" : "The visibility scope of this property.",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "Property",
+      "description" : "A key-value pair with a specified visibility scope."
+    },
+    "PropertyResource" : {
+      "type" : "object",
+      "properties" : {
+        "links" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "link",
+            "namespace" : "http://www.w3.org/2005/Atom",
+            "attribute" : false,
+            "wrapped" : false
+          },
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        },
+        "property" : {
+          "$ref" : "#/definitions/Property"
+        }
+      },
+      "title" : "PropertyResource"
+    },
+    "Resources«FileResource»" : {
+      "type" : "object",
+      "properties" : {
+        "content" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/FileResource"
+          }
+        },
+        "links" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "link",
+            "namespace" : "http://www.w3.org/2005/Atom",
+            "attribute" : false,
+            "wrapped" : false
+          },
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        }
+      },
+      "title" : "Resources«FileResource»"
+    },
+    "Resources«PermissionResource»" : {
+      "type" : "object",
+      "properties" : {
+        "content" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/PermissionResource"
+          }
+        },
+        "links" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "link",
+            "namespace" : "http://www.w3.org/2005/Atom",
+            "attribute" : false,
+            "wrapped" : false
+          },
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        }
+      },
+      "title" : "Resources«PermissionResource»"
+    },
+    "Revision" : {
+      "type" : "object",
+      "properties" : {
+        "checksum" : {
+          "type" : "string",
+          "description" : "An MD5 checksum for the content of this revision.",
+          "allowEmptyValue" : false
+        },
+        "createdDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Create time for this file (formatted ISO8601 timestamp).",
+          "allowEmptyValue" : false
+        },
+        "creatorId" : {
+          "type" : "string",
+          "description" : "Revision creator id.",
+          "allowEmptyValue" : false
+        },
+        "fileSize" : {
+          "type" : "string",
+          "description" : "The size of the revision in bytes.",
+          "allowEmptyValue" : false
+        },
+        "id" : {
+          "type" : "string",
+          "description" : "The ID of the revision.",
+          "allowEmptyValue" : false
+        },
+        "isLastRevision" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "Is a last revision.",
+          "allowEmptyValue" : false
+        },
+        "mediaType" : {
+          "type" : "string",
+          "description" : "The media type of the revision.",
+          "allowEmptyValue" : false
+        },
+        "modifiedDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Last time this revision was modified (formatted RFC 3339 timestamp).",
+          "allowEmptyValue" : false
+        },
+        "ownerId" : {
+          "type" : "string",
+          "description" : "File owner id.",
+          "allowEmptyValue" : false
+        },
+        "title" : {
+          "type" : "string",
+          "description" : "Title of revision",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "Revision",
+      "description" : "A revision of a file."
+    },
+    "RevisionResource" : {
+      "type" : "object",
+      "properties" : {
+        "links" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "link",
+            "namespace" : "http://www.w3.org/2005/Atom",
+            "attribute" : false,
+            "wrapped" : false
+          },
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        },
+        "revision" : {
+          "$ref" : "#/definitions/Revision"
+        }
+      },
+      "title" : "RevisionResource"
+    },
+    "Versions" : {
+      "type" : "object",
+      "properties" : {
+        "appVersion" : {
+          "type" : "string",
+          "description" : "CloudOffice application version.",
+          "allowEmptyValue" : false
+        },
+        "collaborationApiVersion" : {
+          "type" : "string",
+          "description" : "CloudOffice Collaboration API version.",
+          "allowEmptyValue" : false
+        },
+        "fileApiVersion" : {
+          "type" : "string",
+          "description" : "CloudOffice File API version.",
+          "allowEmptyValue" : false
+        },
+        "fileStorageApiVersion" : {
+          "type" : "string",
+          "description" : "CloudOffice File Storage API version.",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "Versions",
+      "description" : "Current build and API versions."
+    },
+    "ZipRequestResult" : {
+      "type" : "object",
+      "properties" : {
+        "requestId" : {
+          "type" : "string",
+          "description" : "Zip request id",
+          "allowEmptyValue" : false
+        }
+      },
+      "title" : "ZipRequestResult",
+      "description" : "REST API createZipRequest response body"
+    }
+  }
+}
